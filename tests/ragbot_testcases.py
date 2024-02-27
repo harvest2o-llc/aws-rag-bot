@@ -1,7 +1,6 @@
 import unittest
-
-from prompt_library import NasaSpokespersonPrompts
-from rag_chatbot import RagChatbot, LlmModelTypes
+from aws_rag_bot.prompt_library import NasaSpokespersonPrompts
+from aws_rag_bot.rag_chatbot import RagChatbot, LlmModelTypes
 from langchain_core.messages import HumanMessage
 
 domain_name = "rise-gardens-kb-v2"

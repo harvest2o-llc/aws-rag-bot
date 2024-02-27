@@ -16,7 +16,7 @@ from opensearchpy import RequestsHttpConnection
 import requests
 import xml.etree.ElementTree as ET
 
-from open_search_vector_db.kustomer import get_all_shortcuts_as_documents
+from aws_rag_bot.kustomer import get_all_shortcuts_as_documents
 import re
 
 DEFAULT_CHUNK_SIZE = 256

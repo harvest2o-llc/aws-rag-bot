@@ -10,11 +10,11 @@ from langchain.schema.runnable import RunnableConfig
 from langchain.callbacks.base import BaseCallbackHandler
 
 # Code in this project
-from open_search_vector_db.aws_opensearch_vector_database import (
+from aws_rag_bot.aws_opensearch_vector_database import (
     EmbeddingTypes,
     OpenSearchVectorDBQuery
 )
-from prompt_library import DefaultPrompts
+from aws_rag_bot.prompt_library import DefaultPrompts
 
 class LlmModelTypes:
     BEDROCK_LLAMA2 = "bedrock_llama2"
