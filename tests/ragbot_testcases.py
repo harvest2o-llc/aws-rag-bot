@@ -2,8 +2,11 @@ import unittest
 from aws_rag_bot.prompt_library import NasaSpokespersonPrompts
 from aws_rag_bot.rag_chatbot import RagChatbot, LlmModelTypes
 from langchain_core.messages import HumanMessage
+from dotenv import find_dotenv, load_dotenv
+import os
 
-domain_name = "rise-gardens-kb-v2"
+load_dotenv(find_dotenv())
+domain_name = os.getenv("OPENSEARCH_DOMAIN")
 question = "what is the Answer to the Ultimate Question of Life, the Universe, and Everything"
 context_question = "How many astronauts are going to the moon?"
 
@@ -56,39 +59,33 @@ class TestRagbot(unittest.TestCase):
 
     # Test chatob with basic questions
     def test_chatbot_with_titan(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_TITAN_EXPRESS)
         response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_with_llama2(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_LLAMA2)
-        response = chatbot.ask_question(context_question, chat_history)
+        response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_with_jurassic(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_JURRASIC2_ULTRA)
-        response = chatbot.ask_question(context_question, chat_history)
+        response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_with_openai_gpt4(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT4)
-        response = chatbot.ask_question(context_question, chat_history)
+        response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_with_openai_gpt3(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT35)
-        response = chatbot.ask_question(context_question, chat_history)
+        response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_with_google_gemini_pro(self):
-        chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.GOOGLE_GEMINI_PRO)
-        response = chatbot.ask_question(context_question, chat_history)
+        response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
     def test_chatbot_conversation_with_titan(self):
