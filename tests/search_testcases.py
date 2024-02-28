@@ -1,26 +1,14 @@
 import unittest
-from aws_opensearch_vector_database import get_opensearch_endpoint, get_embeddings_from_model, EmbeddingTypes
+import os
+from dotenv import find_dotenv, load_dotenv
+
+from aws_rag_bot.aws_opensearch_vector_database import get_opensearch_endpoint, get_embeddings_from_model, EmbeddingTypes
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings.bedrock import BedrockEmbeddings
 
-# Put test case constants specific to user here:
-domain_name = "rise-gardens-kb-v2"
-website_sitemap = "https://www.risegardens.com/sitemap.xml"
+load_dotenv(find_dotenv())
+domain_name = os.getenv("OPENSEARCH_DOMAIN")
 
-
-# Test Cases
-# use unittest - https://www.dataquest.io/blog/unit-tests-python/
-#https://machinelearningmastery.com/a-gentle-introduction-to-unit-testing-in-python/
-
-
-# Call all in the most simple form to ensure they run
-#   then consider deeper test cases for core functions (like content source functions)
-
-# clean_documents_newlines_spaces_and_tabs
-# Load a single document with junk that I can validate, then clean it and validate it
-
-# get_opensearch_endpoint
-# Single test
 class TestOpenSearchVectorDBLoader(unittest.TestCase):
     def test_get_opensearch_endpoint(self):
         endpoint = get_opensearch_endpoint(domain_name=domain_name)
