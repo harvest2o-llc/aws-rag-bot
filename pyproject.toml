@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aws-rag-bot"
-version = "0.1.7"
+version = "0.1.8"
 description = ""
 authors = ["danjamk <dan@risegardens.com>"]
 license = "MIT"
@@ -26,6 +26,7 @@ torch = "^2.2.1"
 anthropic = "^0.16.0"
 sentence-transformers = "^2.5.0"
 cohere = "^4.51"
+docx2txt = "^0.8"
 
 
 

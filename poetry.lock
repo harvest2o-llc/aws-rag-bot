@@ -535,6 +535,16 @@ files = [
 ]
 
 [[package]]
+name = "docx2txt"
+version = "0.8"
+description = "A pure python-based utility to extract text and images from docx files."
+optional = false
+python-versions = "*"
+files = [
+    {file = "docx2txt-0.8.tar.gz", hash = "sha256:2c06d98d7cfe2d3947e5760a57d924e3ff07745b379c8737723922e7009236e5"},
+]
+
+[[package]]
 name = "emoji"
 version = "2.10.1"
 description = "Emoji for Python"
@@ -3880,4 +3890,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "02565b9c75e49cc100e7eeea0c9ecc76cd7db7339ca9c7571a7db99c2a27fb22"
+content-hash = "ed868b497c5e5a830f08fa9d8b1cd117424112ecf94f15f247a882a0fab46efe"
