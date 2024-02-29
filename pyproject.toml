@@ -1,10 +1,14 @@
 [tool.poetry]
 name = "aws-rag-bot"
-version = "0.1.6"
+version = "0.1.7"
 description = ""
 authors = ["danjamk <dan@risegardens.com>"]
 license = "MIT"
 readme = "README.md"
+reposisitry = "https://github.com/harvest2o-llc/aws-rag-bot"
+keywords = ["aws", "rag", "bedrock", "opensearch", "vector database"]
+
+
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"

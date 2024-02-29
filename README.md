@@ -49,7 +49,7 @@ Alternatively, you can install the package from PyPi with the following command:
 ```bash
 pip install aws-rag-bot
 ```
-
+Where the PyPi package is available at https://pypi.org/project/aws-rag-bot/
 
 ### Sample Code
 This is a very simple, high-level example.  Check out the rag_bot_code_samples.ipynb for a more.
@@ -77,6 +77,11 @@ question = "What...?" # Ask a question related to the content you loaded
 response = chatbot.ask_question(question, chat_history, verbose=True)
 print(response)
 ```
+
+
+### Provisioning a test index in OpenSearch
+You can use the tests/provision_test_index.py to create a test index in OpenSearch.  The content loaded
+supports the test cases in this project
 
 
 ### Running chatbot_client.py
