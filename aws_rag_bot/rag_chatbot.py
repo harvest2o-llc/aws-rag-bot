@@ -23,6 +23,7 @@ class LlmModelTypes:
     BEDROCK_JURRASIC2_ULTRA = "bedrock_jurrasic2_ultra"
     BEDROCK_TITAN_EXPRESS = "bedrock_titan_express"
     BEDROCK_CLAUDE_INSTANT = "bedrock_claude_instant"
+    BEDROCK_CLAUDE_21 = "bedrock_claude21"
     OPENAI_GPT4 = "openai_gpt4"
     OPENAI_GPT35 = "openai_gpt35"
     GOOGLE_GEMINI_PRO = "google_gemini_pro"
@@ -123,8 +124,26 @@ class RagChatbot:
             "top_k": 250,
         },
         "model_cost": {
-            "input_token_cost": 0.00163 / 1000,
-            "output_token_cost": 0.00551 / 1000
+            "input_token_cost": 0.00080 / 1000,
+            "output_token_cost": 0.00240 / 1000
+        }
+    }
+
+    __bedrock_model_def_claude21 = {
+        "key": "bedrock_claude21",
+        "name": "Bedrock Claude v2.1",
+        "id": "anthropic.claude-v2:1",
+        "client_name": "bedrock-runtime",
+        "region_name": "us-east-1",
+        "kwargs": {
+            "max_tokens_to_sample": 1000,
+            "temperature": 0.1,
+            "top_p": 0.5,
+            "top_k": 250,
+        },
+        "model_cost": {
+            "input_token_cost": 0.00080 / 1000,
+            "output_token_cost": 0.00240 / 1000
         }
     }
 
@@ -178,6 +197,7 @@ class RagChatbot:
         __bedrock_model_def_jurrasic2_ultra,
         __bedrock_model_def_titan_express,
         __bedrock_model_def_claude_instant,
+        __bedrock_model_def_claude21,
         __open_ai_model_def_gpt4,
         __open_ai_model_def_gpt35,
         __google_gemini_pro
