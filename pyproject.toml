@@ -5,9 +5,8 @@ description = ""
 authors = ["danjamk <dan@risegardens.com>"]
 license = "MIT"
 readme = "README.md"
-reposisitry = "https://github.com/harvest2o-llc/aws-rag-bot"
 keywords = ["aws", "rag", "bedrock", "opensearch", "vector database"]
-
+repository = "https://github.com/harvest2o-llc/aws-rag-bot"
 
 
 [tool.poetry.dependencies]
@@ -25,6 +24,8 @@ selenium = "^4.18.1"
 unstructured = "^0.12.5"
 torch = "^2.2.1"
 anthropic = "^0.16.0"
+sentence-transformers = "^2.5.0"
+cohere = "^4.51"
 
 
 

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import boto3
 from dotenv import find_dotenv, load_dotenv
 from langchain.llms.bedrock import Bedrock
@@ -49,10 +51,13 @@ class RagChatbot:
     __total_cost = 0
     __total_input_tokens = 0
     __total_output_tokens = 0
+    __total_run_duration = 0
     __last_run_prompt = None
     __last_run_input_tokens = 0
     __last_run_output_tokens = 0
     __last_run_cost = 0
+    __last_run_duration = 0
+
 
     __bedrock_model_def_llama2 = {
         "key": "bedrock_llama2",
@@ -320,7 +325,10 @@ class RagChatbot:
 
         # Adds in our callback to the chain
         rag_chain = rag_chain.with_config(chain_config)
+        start_time = datetime.now()
         response = rag_chain.invoke({"question": question, "chat_history": conversation_history})
+        end_time = datetime.now()
+        duration = end_time - start_time
 
         self.__last_run_input_tokens = my_callback_handler.input_tokens
         self.__last_run_output_tokens = my_callback_handler.output_tokens
@@ -329,6 +337,8 @@ class RagChatbot:
         self.__total_input_tokens += my_callback_handler.input_tokens
         self.__total_output_tokens += my_callback_handler.output_tokens
         self.__last_run_prompt = my_callback_handler.prompt
+        self.__last_run_duration = duration.total_seconds()
+        self.__total_run_duration += duration.total_seconds()
 
         if type(response) == AIMessage:
             return response
@@ -340,9 +350,13 @@ class RagChatbot:
             "total_cost": self.__total_cost,
             "total_input_tokens": self.__total_input_tokens,
             "total_output_tokens": self.__total_output_tokens,
+            "total_run_duration": self.__total_run_duration,
+
             "last_run_input_tokens": self.__last_run_input_tokens,
             "last_run_output_tokens": self.__last_run_output_tokens,
             "last_run_cost": self.__last_run_cost,
+            "last_run_duration": self.__last_run_duration,
+
             "model_name": self.__current_model,
             "vector_db_index": self.__prompt_model.llm_index
         }
