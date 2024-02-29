@@ -36,6 +36,13 @@ class TestRagbot(unittest.TestCase):
         print(meaning_of_life)
         self.assertIn("42", meaning_of_life)
 
+    def test_bedrock_claude_instant(self):
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_INSTANT)
+        llm = chatbot.get_llm_model()
+        meaning_of_life = llm.invoke(question)
+        print(meaning_of_life)
+        self.assertIn("42", meaning_of_life)
+
     def test_openai_gpt4(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT4)
         llm = chatbot.get_llm_model()
@@ -70,6 +77,11 @@ class TestRagbot(unittest.TestCase):
 
     def test_chatbot_with_jurassic(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_JURRASIC2_ULTRA)
+        response = chatbot.ask_question(context_question)
+        self.assertIsNotNone(response.content)
+
+    def test_chatbot_with_claude_instant(self):
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_INSTANT)
         response = chatbot.ask_question(context_question)
         self.assertIsNotNone(response.content)
 
@@ -113,6 +125,17 @@ class TestRagbot(unittest.TestCase):
     def test_chatbot_conversation_with_jurassic(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_JURRASIC2_ULTRA, prompt_model=NasaSpokespersonPrompts)
+        response1 = chatbot.ask_question(conv_question1, chat_history)
+        print(response1.content)
+        self.assertIsNotNone(response1.content)
+        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response2 = chatbot.ask_question(conv_question2, chat_history)
+        print(response2.content)
+        self.assertIsNotNone(response2.content)
+
+    def test_chatbot_conversation_with_claude_instant(self):
+        chat_history = []
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_INSTANT, prompt_model=NasaSpokespersonPrompts)
         response1 = chatbot.ask_question(conv_question1, chat_history)
         print(response1.content)
         self.assertIsNotNone(response1.content)

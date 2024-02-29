@@ -45,7 +45,7 @@ Then you can install the dependencies with the following command:
 poetry install
 ```
 
-Alternatively, yuo can install the packaget from PyPi with the following command:
+Alternatively, you can install the package from PyPi with the following command:
 ```bash
 pip install aws-rag-bot
 ```

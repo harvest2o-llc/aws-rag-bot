@@ -1,7 +1,6 @@
 import unittest
 import os
 from dotenv import find_dotenv, load_dotenv
-
 from aws_rag_bot.aws_opensearch_vector_database import get_opensearch_endpoint, get_embeddings_from_model, EmbeddingTypes
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings.bedrock import BedrockEmbeddings

@@ -20,6 +20,7 @@ transformers = "^4.38.1"
 selenium = "^4.18.1"
 unstructured = "^0.12.5"
 torch = "^2.2.1"
+anthropic = "^0.16.0"
 
 
 
