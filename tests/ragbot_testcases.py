@@ -50,6 +50,24 @@ class TestRagbot(unittest.TestCase):
         print(meaning_of_life)
         self.assertIn("42", meaning_of_life)
 
+    def test_bedrock_claude21_optmized_prompt(self):
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21)
+        llm = chatbot.get_llm_model()
+
+        # Claud 2.1 has some specialized prompt rules that help.
+        # https://docs.anthropic.com/claude/docs/guide-to-anthropics-prompt-engineering-resources
+        claude21_question = """
+        
+        
+        Human: What is the Answer to the Ultimate Question of Life, the Universe, and Everything
+        
+        Assistant:
+        """
+
+        meaning_of_life = llm.invoke(claude21_question)
+        print(meaning_of_life)
+        self.assertIn("42", meaning_of_life)
+
     def test_openai_gpt4(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT4)
         llm = chatbot.get_llm_model()

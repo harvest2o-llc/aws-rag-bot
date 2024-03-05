@@ -18,6 +18,7 @@ from aws_rag_bot.aws_opensearch_vector_database import (
 )
 from aws_rag_bot.prompt_library import DefaultPrompts
 
+
 class LlmModelTypes:
     BEDROCK_LLAMA2 = "bedrock_llama2"
     BEDROCK_JURRASIC2_ULTRA = "bedrock_jurrasic2_ultra"
@@ -58,7 +59,6 @@ class RagChatbot:
     __last_run_output_tokens = 0
     __last_run_cost = 0
     __last_run_duration = 0
-
 
     __bedrock_model_def_llama2 = {
         "key": "bedrock_llama2",
@@ -186,7 +186,7 @@ class RagChatbot:
             "maxTokens": 500,
             "temperature": 0.5,
         },
-        "model_cost": { # uses cost/char... estimated at 4 chars per token
+        "model_cost": {  # uses cost/char... estimated at 4 chars per token
             "input_token_cost": 0.000125 * 4 / 1000,
             "output_token_cost": 0.000375 * 4 / 1000
         }
@@ -263,7 +263,6 @@ class RagChatbot:
             # Explicitly create client with boto3 to get better control and transparency
             bedrock = boto3.client('bedrock-runtime', region_name=self.__current_model['region_name'])
 
-
             llm_model = Bedrock(
                 model_id=self.__current_model['id'],
                 client=bedrock,
@@ -306,11 +305,17 @@ class RagChatbot:
 
             def on_llm_start(self, input, prompts, **kwargs):
                 self.prompt = prompts
+                print("--------------------- Inspect Prompts --------------------------------------")
+                print(prompts)
+                print("---------------------------------------------------------------------------")
                 for p in prompts:
                     self.input_tokens = self.llm.get_num_tokens(p)
 
             def on_llm_end(self, output, **kwargs):
                 results = output.flatten()
+                print("--------------------- Inspect Results --------------------------------------")
+                print(results)
+                print("---------------------------------------------------------------------------")
                 for r in results:
                     self.output_tokens = self.llm.get_num_tokens(r.generations[0][0].text)
 
@@ -383,3 +388,6 @@ class RagChatbot:
 
     def get_last_run_prompt(self):
         return self.__last_run_prompt
+
+    def get_vector_db(self):
+        return self.__vector_db
