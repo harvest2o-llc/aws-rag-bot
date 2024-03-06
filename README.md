@@ -13,13 +13,13 @@ This library is meant more to provide a complete working set of examples and les
 
 ## Features and aspects of interest
 - **LangChain** - Great framework building Generative AI applications. 
-- **LLM Model Support** - Defaults to AWS Bedrock Titan LLM, but supports other Bedrock models (LLama 2, Jurassic) OpenAI (GTP-3.5 and GTP-4), Google Gemini
+- **LLM Model Support** - Defaults to AWS Bedrock Titan LLM, but supports other Bedrock models (LLama 2, Jurassic, Anthropic Claude) OpenAI (GTP-3.5 and GTP-4), Google Gemini
 - **LangChain LLM Callbacks** - Example of using LLM Callbacks, provided here for custom costing 
 - **Conversational Memory** -- Designed to manage chat history memory from the client side - to support a serverless model
 - **OpenSearch** - an AWS hosted semantic search service which has a vector database that is valuable in the retrieval feature of RAG
 - **OpenSearch loading library** - making it easier to load multiple content sources into an OpenSearch vector database.
 - **Langchain LCEL Chains** - for more flexible chaining of steps in the RAG app
-- **Multiple embedding models** - Defaults to Bedrock Titan, but supports OpenAI and Hugging Face
+- **Multiple embedding models** - Defaults to Bedrock Titan, OpenAI and Hugging Face and Coherence
 - **Web and directory crawlers** - for loading content into the vector DB.  Lots of fine-tuning to document selection features - whitelisting, black listing, etc.
 - **Prompt library management** - making it easier to implement query routing to optimize for specific domains of questions
 - **LangSmith logging** - for logging and debugging
@@ -50,7 +50,7 @@ Alternatively, you can install the package from PyPi with the following command:
 pip install aws-rag-bot
 ```
 Where the PyPi package is available at https://pypi.org/project/aws-rag-bot/
-
+****
 ### Sample Code
 This is a very simple, high-level example.  Check out the rag_bot_code_samples.ipynb for a more.
 First step is to have content in your vector database.  
@@ -91,6 +91,18 @@ It is a simple command line program that will ask a question and then print the 
 ```bash
 python chatbot_client.py my-opensource-domain-name
 ```
+
+### Running tests
+There are two test modules in the tests folder used to run through search and the RAG bot to make sure everything is working as well as provide
+some additional samples of how to use the framework.
+
+### Using Ragas evaluation framework
+Ragas is one of a variety of evaluation tools for RAG applications.  
+It can be used to evaluate both the retrieval and generation aspects of the RAG bot.  
+With an evaluation tool you can then use this project's features to vary whatever aspects you need
+and compare the results to make decisions and tune. 
+A simple example of this can be found in the tests folder.
+
 
 ## References
 **Vector Database:**  May references show using Chroma and FAISS, but I needed a solution that worked well in a Lambda serverless environment.  
