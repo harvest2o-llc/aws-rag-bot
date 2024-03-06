@@ -1,8 +1,7 @@
 import argparse
 from colorama import Fore, Back, Style
-from rag_chatbot import RagChatbot, LlmModelTypes
-from prompt_library import DefaultPrompts, NasaSpokespersonPrompts
-from langchain_core.messages import AIMessage, HumanMessage
+from aws_rag_bot.prompt_library import *
+from aws_rag_bot.rag_chatbot import RagChatbot, LlmModelTypes
 from dotenv import find_dotenv, load_dotenv
 import os
 
@@ -21,10 +20,9 @@ if not domain_name:
 else:
     print(f"Using OpenSearch domain name: {domain_name}")
 
-#domain_name = "rise-gardens-kb-v2"
 chatbot = RagChatbot(domain_name,
-                     LlmModelTypes.BEDROCK_TITAN_EXPRESS,
-                     prompt_model=NasaSpokespersonPrompts)
+                     LlmModelTypes.BEDROCK_CLAUDE_21,
+                     prompt_model=ClaudNasaSpokespersonPrompts)
 chat_history = []
 
 while True:
@@ -33,12 +31,12 @@ while True:
         print()
         print("I'm out of here!")
         break
-    response = chatbot.ask_question(human_input, chat_history, verbose=True)
+    response = chatbot.ask_question(human_input, chat_history)
 
     # Keep track of the conversation history for future questions
-    chat_history.extend([HumanMessage(content=human_input), response])
+    chat_history.extend([{"question": human_input, "response": response}])
 
-    print(Fore.BLUE + response.content + Style.RESET_ALL)
+    print(Fore.BLUE + response + Style.RESET_ALL)
     print()
 
 #Now print out the final summary of cost and tokens

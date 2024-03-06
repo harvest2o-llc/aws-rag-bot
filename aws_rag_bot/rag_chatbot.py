@@ -1,9 +1,10 @@
 from datetime import datetime
-
 import boto3
 from dotenv import find_dotenv, load_dotenv
+
 from langchain.llms.bedrock import Bedrock
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
@@ -16,7 +17,7 @@ from aws_rag_bot.aws_opensearch_vector_database import (
     EmbeddingTypes,
     OpenSearchVectorDBQuery
 )
-from aws_rag_bot.prompt_library import DefaultPrompts
+from aws_rag_bot.prompt_library import *
 
 
 class LlmModelTypes:
@@ -217,7 +218,7 @@ class RagChatbot:
 
         load_dotenv(find_dotenv())
         if prompt_model is None:
-            self.__prompt_model = DefaultPrompts()
+            self.__prompt_model = BasePromptModel()
         else:
             self.__prompt_model = prompt_model
 
@@ -238,6 +239,42 @@ class RagChatbot:
                                             index_name=index_name,
                                             embedding_model=embedding_model)
         self.__vector_db = vector_db.get_client()
+
+    class RagCallback(BaseCallbackHandler):
+        # https://how.wtf/how-to-count-amazon-bedrock-anthropic-tokens-with-langchain.html
+        def __init__(self, llm, verbose=False):
+            self.llm = llm
+            self.prompt = None
+            self.input_tokens = 0
+            self.output_tokens = 0
+            self.verbose = verbose
+
+        def on_llm_start(self, input, prompts, **kwargs):
+            self.prompt = prompts
+            if self.verbose:
+                print("--------------------- Callback On Start LLM Prompts --------------------------------------")
+                print(prompts)
+                print("------------------------------------------------------------------------------------------")
+            for p in prompts:
+                self.input_tokens = self.llm.get_num_tokens(p)
+
+        def on_llm_end(self, output, **kwargs):
+            results = output.flatten()
+            if self.verbose:
+                print("--------------------- Callback On End LLM Results --------------------------------------")
+                print(results)
+                print("----------------------------------------------------------------------------------------")
+            for r in results:
+                self.output_tokens = self.llm.get_num_tokens(r.generations[0][0].text)
+
+        def cost(self, model_info):
+            if 'model_cost' in model_info:
+                return self.input_tokens * model_info['model_cost']['input_token_cost'] + self.output_tokens * \
+                    model_info['model_cost']['output_token_cost']
+
+        # def on_llm_new_token(self, token, **kwargs):
+        #     Says I need streaming enabled for this to work. maybe later
+        #     self.input_tokens += 1
 
     # Create the LLM model
     def __get_llm_model(self):
@@ -289,69 +326,57 @@ class RagChatbot:
         return self.__llm_model
 
     def ask_question(self, question, conversation_history=None, verbose=False):
-        contextualize_q_chain = self.__prompt_model.contextualize_q_prompt | self.__llm_model | StrOutputParser()
-        retriever = self.__vector_db.as_retriever()
-
-        if conversation_history is None:
-            conversation_history = []
-
-        class MyCallback(BaseCallbackHandler):
-            # https://how.wtf/how-to-count-amazon-bedrock-anthropic-tokens-with-langchain.html
-            def __init__(self, llm):
-                self.llm = llm
-                self.prompt = None
-                self.input_tokens = 0
-                self.output_tokens = 0
-
-            def on_llm_start(self, input, prompts, **kwargs):
-                self.prompt = prompts
-                print("--------------------- Inspect Prompts --------------------------------------")
-                print(prompts)
-                print("---------------------------------------------------------------------------")
-                for p in prompts:
-                    self.input_tokens = self.llm.get_num_tokens(p)
-
-            def on_llm_end(self, output, **kwargs):
-                results = output.flatten()
-                print("--------------------- Inspect Results --------------------------------------")
-                print(results)
-                print("---------------------------------------------------------------------------")
-                for r in results:
-                    self.output_tokens = self.llm.get_num_tokens(r.generations[0][0].text)
-
-            def cost(self, model_info):
-                if 'model_cost' in model_info:
-                    return self.input_tokens * model_info['model_cost']['input_token_cost'] + self.output_tokens * \
-                        model_info['model_cost']['output_token_cost']
-
-            # def on_llm_new_token(self, token, **kwargs):
-            #     Says I need streaming enabled for this to work. maybe later
-            #     self.input_tokens += 1
-
-        def format_docs(docs):
-            return "\n\n".join([d.page_content for d in docs])
-
-        def contextualized_question(input: dict):
-            if input.get("chat_history"):
-                return contextualize_q_chain
-            else:
-                return input["question"]
-
-        my_callback_handler = MyCallback(self.__llm_model)
+        my_callback_handler = self.RagCallback(self.__llm_model, verbose=verbose)
         chain_config = RunnableConfig(callbacks=[my_callback_handler])
 
-        rag_chain = (
-                RunnablePassthrough.assign(
-                    context=contextualized_question | retriever | format_docs
-                )
-                | self.__prompt_model.qa_prompt
-                | self.__llm_model
-        )
+        # --- If we have history, then summarize along with the question to produce a new question ---
+        # format of chat history is: [{"question": "****", "response": "****"},]
+        #  and is managed and formulated by the client to this call
+        restated_question = None
+        if conversation_history is not None:
+            summary_prompt = ChatPromptTemplate.from_template(self.__prompt_model.summary_prompt_template)
+            history = ""
+            for qa_pair in conversation_history:
+                history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
+            summary_request = summary_prompt.format(chat_history=history, question=question)
+            # chain = LLMChain(llm=self.__llm_model, prompt=summary_request, callbacks=[my_callback_handler])
+            # chain = LLMChain(llm=self.__llm_model, prompt=summary_prompt, callbacks=[my_callback_handler])
+            # chain = LLMChain(llm=self.__llm_model, callbacks=[my_callback_handler])
+            #
+            # restated_question = chain.invoke({"question": question, "chat_history": history})
+            restated_question = self.__llm_model.invoke(summary_request, config=chain_config)
 
-        # Adds in our callback to the chain
-        rag_chain = rag_chain.with_config(chain_config)
+
+
+        else:
+            restated_question = question
+
+        # --- Now we have a restated question, we ask the with the intended prompts ---
+        # Get a retriever
+        retriever = self.__vector_db.as_retriever()
+
+        # Register my callback handler
+
+        template = self.__prompt_model.system_prompt_template
+        prompt = ChatPromptTemplate.from_template(template)
+
+        # This takes the context from the retriever, based on the question, then
+        #   passes the resulting context and question to the prompt template
+        #   then executes the query and returns.
+        my_chain = (
+                {"context": retriever, "question": RunnablePassthrough()}
+                | prompt
+                | self.__llm_model
+                | StrOutputParser()
+        )
+        # provide config to the chain, which at the moment includes the callback handler
+        my_chain = my_chain.with_config(chain_config)
         start_time = datetime.now()
-        response = rag_chain.invoke({"question": question, "chat_history": conversation_history})
+        if type(restated_question) == AIMessage:
+            answer = my_chain.invoke(restated_question.content)
+        else:
+            answer = my_chain.invoke(restated_question)
+
         end_time = datetime.now()
         duration = end_time - start_time
 
@@ -365,10 +390,15 @@ class RagChatbot:
         self.__last_run_duration = duration.total_seconds()
         self.__total_run_duration += duration.total_seconds()
 
-        if type(response) == AIMessage:
-            return response
-        else:  # This is needed because some LLM's will return a string instead of a AIMessage, like Titan Express
-            return AIMessage(content=response)
+        # if type(response) == AIMessage:
+        #     return response
+        # else:  # This is needed because some LLM's will return a string instead of a AIMessage, like Titan Express
+        #     return AIMessage(content=response)
+
+        if type(answer) == AIMessage:
+            return answer.content
+        else:
+            return answer
 
     def get_model_run_summary(self):
         return {

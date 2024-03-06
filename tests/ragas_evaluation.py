@@ -11,7 +11,7 @@ from ragas.metrics import (
 from datasets import Dataset
 
 from aws_rag_bot.rag_chatbot import RagChatbot, LlmModelTypes
-from aws_rag_bot.prompt_library import NasaSpokespersonPrompts
+from aws_rag_bot.prompt_library import *
 from aws_rag_bot.aws_opensearch_vector_database import EmbeddingTypes, OpenSearchVectorDBQuery
 
 # The basic idea here:
@@ -51,8 +51,8 @@ for q in questions_and_ground_truths:
 
 load_dotenv(find_dotenv())
 domain_name = os.getenv('OPENSEARCH_DOMAIN')
-llm_model_type = LlmModelTypes.BEDROCK_TITAN_EXPRESS
-prompt_model = NasaSpokespersonPrompts
+llm_model_type = LlmModelTypes.BEDROCK_CLAUDE_21
+prompt_model = ClaudNasaSpokespersonPrompts
 
 
 # Get an LLM model from our chatbot
@@ -71,7 +71,7 @@ retriever = vector_db_client.as_retriever()
 # Get answers and content from our RAbot
 for query in questions:
     answer = chatbot.ask_question(query)
-    answers.append(answer.content.strip())  # Strip off any leading or trailing white space
+    answers.append(answer.strip())  # Strip off any leading or trailing white space
     contexts.append([docs.page_content for docs in retriever.get_relevant_documents(query)])
 
 # To dict for proper shaping to evaluate

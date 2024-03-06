@@ -93,14 +93,15 @@ python chatbot_client.py my-opensource-domain-name
 ```
 
 ### Running tests
-There are two test modules in the test folder used to run through search and the RAG bot to make sure everything is working
+There are two test modules in the tests folder used to run through search and the RAG bot to make sure everything is working as well as provide
+some additional samples of how to use the framework.
 
 ### Using Ragas evaluation framework
 Ragas is one of a variety of evaluation tools for RAG applications.  
 It can be used to evaluate both the retrieval and generation aspects of the RAG bot.  
 With an evaluation tool you can then use this project's features to vary whatever aspects you need
 and compare the results to make decisions and tune. 
-A simple example of this can be found in the test folder.
+A simple example of this can be found in the tests folder.
 
 
 ## References

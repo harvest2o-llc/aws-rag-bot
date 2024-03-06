@@ -50,7 +50,7 @@ class TestRagbot(unittest.TestCase):
         print(meaning_of_life)
         self.assertIn("42", meaning_of_life)
 
-    def test_bedrock_claude21_optmized_prompt(self):
+    def test_bedrock_claude21_optimized_prompt(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21)
         llm = chatbot.get_llm_model()
 
@@ -93,128 +93,128 @@ class TestRagbot(unittest.TestCase):
     def test_chatbot_with_titan(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_TITAN_EXPRESS)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_llama2(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_LLAMA2)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_jurassic(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_JURRASIC2_ULTRA)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_claude_instant(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_INSTANT)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_claude21(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_openai_gpt4(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT4)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_openai_gpt3(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT35)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_with_google_gemini_pro(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.GOOGLE_GEMINI_PRO)
         response = chatbot.ask_question(context_question)
-        self.assertIsNotNone(response.content)
+        self.assertIsNotNone(response)
 
     def test_chatbot_conversation_with_titan(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_TITAN_EXPRESS, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        # print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_llama2(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_LLAMA2, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_jurassic(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_JURRASIC2_ULTRA, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_claude_instant(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_INSTANT, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
 
     def test_chatbot_conversation_with_claude21(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_openai_gpt4(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT4, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_openai_gpt3(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.OPENAI_GPT35, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
 
     def test_chatbot_conversation_with_google_gemini_pro(self):
         chat_history = []
         chatbot = RagChatbot(domain_name, LlmModelTypes.GOOGLE_GEMINI_PRO, prompt_model=NasaSpokespersonPrompts)
-        response1 = chatbot.ask_question(conv_question1, chat_history)
-        print(response1.content)
-        self.assertIsNotNone(response1.content)
-        chat_history.extend([HumanMessage(content=conv_question1), response1])
+        response1 = chatbot.ask_question(conv_question1)
+        print(response1)
+        self.assertIsNotNone(response1)
+        chat_history.extend([{"question": conv_question1, "response": response1}])
         response2 = chatbot.ask_question(conv_question2, chat_history)
-        print(response2.content)
-        self.assertIsNotNone(response2.content)
+        print(response2)
+        self.assertIsNotNone(response2)
