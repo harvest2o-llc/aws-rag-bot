@@ -339,14 +339,7 @@ class RagChatbot:
             for qa_pair in conversation_history:
                 history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
             summary_request = summary_prompt.format(chat_history=history, question=question)
-            # chain = LLMChain(llm=self.__llm_model, prompt=summary_request, callbacks=[my_callback_handler])
-            # chain = LLMChain(llm=self.__llm_model, prompt=summary_prompt, callbacks=[my_callback_handler])
-            # chain = LLMChain(llm=self.__llm_model, callbacks=[my_callback_handler])
-            #
-            # restated_question = chain.invoke({"question": question, "chat_history": history})
             restated_question = self.__llm_model.invoke(summary_request, config=chain_config)
-
-
 
         else:
             restated_question = question
