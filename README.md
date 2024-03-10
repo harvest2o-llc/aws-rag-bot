@@ -20,7 +20,7 @@ Because this framework imports so many variants of embeddings, LLM models, etc. 
 - **OpenSearch** - an AWS hosted semantic search service which has a vector database that is valuable in the retrieval feature of RAG
 - **OpenSearch loading library** - making it easier to load multiple content sources into an OpenSearch vector database.
 - **Langchain LCEL Chains** - for more flexible chaining of steps in the RAG app
-- **Multiple embedding models** - Defaults to Bedrock Titan, OpenAI and Hugging Face and Coherence
+- **Multiple embedding models** - Defaults to Bedrock Titan, OpenAI and Hugging Face and Cohere
 - **Web and directory crawlers** - for loading content into the vector DB.  Lots of fine-tuning to document selection features - whitelisting, black listing, etc.
 - **Prompt library management** - making it easier to implement query routing to optimize for specific domains of questions
 - **LangSmith logging** - for logging and debugging
