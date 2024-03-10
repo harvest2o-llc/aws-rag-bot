@@ -24,6 +24,7 @@ Because this framework imports so many variants of embeddings, LLM models, etc. 
 - **Web and directory crawlers** - for loading content into the vector DB.  Lots of fine-tuning to document selection features - whitelisting, black listing, etc.
 - **Prompt library management** - making it easier to implement query routing to optimize for specific domains of questions
 - **LangSmith logging** - for logging and debugging
+- **Ragas Evaluation** - A simple starter module that uses [ragas](https://docs.ragas.io/en/stable/) to run evaluations on the RAG chain configurations you want to compare.
 
 ## How to use
 ### Prerequisites
@@ -124,4 +125,6 @@ I also used the directory loader and plan to implement cloud based directory loa
 
 ### What's next (Roadmap):
 1. Add vector database stub for FAISS and easy testing
-1. Expand range of support for Embeddings - including Hugging Face cloud service for embeddings
+2. Add OpenSearch serverless support
+3. Add Bedrock Claude 3
+4. Add Bedrock Coherence embedding
