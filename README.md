@@ -126,5 +126,3 @@ I also used the directory loader and plan to implement cloud based directory loa
 ### What's next (Roadmap):
 1. Add vector database stub for FAISS and easy testing
 2. Add OpenSearch serverless support
-3. Add Bedrock Claude 3
-4. Add Bedrock Coherence embedding

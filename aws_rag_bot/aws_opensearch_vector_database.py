@@ -28,6 +28,7 @@ class EmbeddingTypes:
     HUGGING_FACE_DEFAULT = {"name": "hugging-face-default", "provider": "hugging-face", "model": "default"}
     BEDROCK_DEFAULT = {"name": "bedrock-default", "provider": "bedrock", "model": "amazon.titan-embed-text-v1",
                        "region": "us-east-1"}
+    BEDROCK_COHERE = {"name": "bedrock-cohere", "provider": "bedrock", "model": "cohere.embed-english-v3",}
     COHERE_DEFAULT = {"name": "cohere-default", "provider": "cohere", "model": "embed-english-light-v3.0"}
 
 

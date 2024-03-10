@@ -23,6 +23,14 @@ class TestOpenSearchVectorDBLoader(unittest.TestCase):
         print(f"embedding_length: {len(embedding_vector)}")
         self.assertGreater(len(embedding_vector), 0)
 
+    def test_get_embeddings_from_model_bedrock_cohere(self):
+        embedding = get_embeddings_from_model(EmbeddingTypes.BEDROCK_COHERE_DEFAULT)
+        self.assertTrue(embedding)
+        self.assertEqual(type(embedding), CohereEmbeddings)
+        embedding_vector = embedding.embed_query("What is the meaning of life?")
+        print(f"embedding_length: {len(embedding_vector)}")
+        self.assertGreater(len(embedding_vector), 0)
+
     def test_get_embeddings_from_model_openai(self):
         embedding = get_embeddings_from_model(EmbeddingTypes.OPENAI_GPT_DEFAULT)
         self.assertTrue(embedding)
