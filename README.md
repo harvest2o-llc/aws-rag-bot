@@ -8,7 +8,8 @@ The frameworks I created here abstract out a variety of components to enable eas
 content being use in my applications.  The goal is to play with different LLM's, different embeddings, parameters like temperature, top_p and more.
 Content loading also needed to be highly refined allowing me to control each source easily.
 
-This library is meant more to provide a complete working set of examples and less to be an out-of-the-box library to use as-is.
+This library is meant more to provide a complete working set of examples and less to be an out-of-the-box library to use as-is.  
+Because this framework imports so many variants of embeddings, LLM models, etc. it is not suitable for a direct deployment into something like AWS Lambda... it is a :pig:.  
 
 
 ## Features and aspects of interest
