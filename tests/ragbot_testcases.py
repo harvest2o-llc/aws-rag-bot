@@ -60,6 +60,15 @@ class TestRagbot(unittest.TestCase):
         print(meaning_of_life)
         self.assertIn("42", meaning_of_life)
 
+
+    def test_bedrock_claud3_sonnet(self):
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE3_SONNET)
+        llm = chatbot.get_llm_model()
+        meaning_of_life = llm.invoke(question)
+        print(meaning_of_life.content)
+        self.assertIn("42", meaning_of_life.content)
+
+
     def test_bedrock_claude21_optimized_prompt(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21)
         llm = chatbot.get_llm_model()
@@ -135,6 +144,14 @@ class TestRagbot(unittest.TestCase):
 
     def test_chatbot_with_claude21(self):
         chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE_21, prompt_model=ClaudNasaSpokespersonPrompts)
+        print(Fore.BLUE + f"Question: {context_question}" + Style.RESET_ALL)
+        print()
+        response = chatbot.ask_question(context_question, verbose=verbose)
+        print(Fore.GREEN + "Answer:\n" + response + Style.RESET_ALL)
+        self.assertIsNotNone(response)
+
+    def test_chatbot_with_claud3_sonnet(self):
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE3_SONNET, prompt_model=ClaudNasaSpokespersonPrompts)
         print(Fore.BLUE + f"Question: {context_question}" + Style.RESET_ALL)
         print()
         response = chatbot.ask_question(context_question, verbose=verbose)
@@ -251,6 +268,24 @@ class TestRagbot(unittest.TestCase):
         response2 = chatbot.ask_question(conv_question2, chat_history, verbose=verbose)
         print(Fore.GREEN + "Answer:\n" + response2 + Style.RESET_ALL)
         self.assertIsNotNone(response2)
+
+    def test_chatbot_conversation_with_claud3_sonnet(self):
+        chat_history = []
+        chatbot = RagChatbot(domain_name, LlmModelTypes.BEDROCK_CLAUDE3_SONNET, prompt_model=ClaudNasaSpokespersonPrompts)
+        print(Fore.BLUE + f"Question: {conv_question1}" + Style.RESET_ALL)
+        print()
+        response1 = chatbot.ask_question(conv_question1, verbose=verbose)
+        print(Fore.GREEN + "Answer:\n" + response1 + Style.RESET_ALL)
+        self.assertIsNotNone(response1)
+
+        print("----------------------------------------------------------------------")
+        chat_history.extend([{"question": conv_question1, "response": response1}])
+        print(Fore.BLUE + f"Question: {conv_question2}" + Style.RESET_ALL)
+        print()
+        response2 = chatbot.ask_question(conv_question2, chat_history, verbose=verbose)
+        print(Fore.GREEN + "Answer:\n" + response2 + Style.RESET_ALL)
+        self.assertIsNotNone(response2)
+
 
     def test_chatbot_conversation_with_openai_gpt4(self):
         chat_history = []

@@ -3,6 +3,7 @@ import boto3
 from dotenv import find_dotenv, load_dotenv
 
 from langchain.llms.bedrock import Bedrock
+from langchain_community.chat_models import BedrockChat
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -26,6 +27,7 @@ class LlmModelTypes:
     BEDROCK_TITAN_EXPRESS = "bedrock_titan_express"
     BEDROCK_CLAUDE_INSTANT = "bedrock_claude_instant"
     BEDROCK_CLAUDE_21 = "bedrock_claude21"
+    BEDROCK_CLAUDE3_SONNET = "bedrock_claude3_sonnet"
     OPENAI_GPT4 = "openai_gpt4"
     OPENAI_GPT35 = "openai_gpt35"
     GOOGLE_GEMINI_PRO = "google_gemini_pro"
@@ -148,6 +150,28 @@ class RagChatbot:
         }
     }
 
+
+    # https://medium.com/@dminhk/building-with-anthropics-claude-3-on-amazon-bedrock-and-langchain-️-2b842f9c0ca8
+    __bedrock_model_def_claude3_sonnet = {
+        "key": "bedrock_claude3_sonnet",
+        "name": "Bedrock Claude v3 Sonnet",
+        "id": "anthropic.claude-3-sonnet-20240229-v1:0",
+        "client_name": "bedrock-runtime",
+        "region_name": "us-east-1",
+        "kwargs": {
+            "max_tokens": 1000,
+            "temperature": 0.1,
+            "top_p": 0.5,
+            "top_k": 250,
+            "stop_sequences": ["\n\nHuman"],
+        },
+        "model_cost": {
+            "input_token_cost": 0.00300 / 1000,
+            "output_token_cost": 0.01500 / 1000
+        }
+    }
+
+
     __open_ai_model_def_gpt4 = {
         "key": "openai_gpt4",
         "name": "OpenAI GPT-4",
@@ -199,6 +223,7 @@ class RagChatbot:
         __bedrock_model_def_titan_express,
         __bedrock_model_def_claude_instant,
         __bedrock_model_def_claude21,
+        __bedrock_model_def_claude3_sonnet,
         __open_ai_model_def_gpt4,
         __open_ai_model_def_gpt35,
         __google_gemini_pro
@@ -300,11 +325,19 @@ class RagChatbot:
             # Explicitly create client with boto3 to get better control and transparency
             bedrock = boto3.client('bedrock-runtime', region_name=self.__current_model['region_name'])
 
-            llm_model = Bedrock(
-                model_id=self.__current_model['id'],
-                client=bedrock,
-                model_kwargs=llm_model_kwargs
-            )
+            if self.__current_model['key'] == LlmModelTypes.BEDROCK_CLAUDE3_SONNET:
+                llm_model = BedrockChat(
+                    model_id=self.__current_model['id'],
+                    client=bedrock,
+                    model_kwargs=llm_model_kwargs
+                )
+
+            else:
+                llm_model = Bedrock(
+                    model_id=self.__current_model['id'],
+                    client=bedrock,
+                    model_kwargs=llm_model_kwargs
+                )
 
         elif self.__current_model['client_name'] == 'openai':
             temp = llm_model_kwargs['temperature']
