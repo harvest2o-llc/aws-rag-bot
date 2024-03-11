@@ -251,7 +251,7 @@ def chunk_up_documents(documents, chunk_size):
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
-        chunk_overlap=26,
+        chunk_overlap=round(chunk_size * 0.15),  # I chose 15% overlap because that is what I use in woodworking scrap estimate  :-)
         length_function=len,
     )
     docs_chunks = text_splitter.split_documents(documents)
