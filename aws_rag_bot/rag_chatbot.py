@@ -104,7 +104,7 @@ class RagChatbot:
         "client_name": "bedrock-runtime",
         "region_name": "us-east-1",
         "kwargs": {
-            "maxTokenCount": 1000,
+            "maxTokenCount": 500,
             "temperature": 0.1,
             "topP": 0.5,
         },
@@ -121,7 +121,7 @@ class RagChatbot:
         "client_name": "bedrock-runtime",
         "region_name": "us-east-1",
         "kwargs": {
-            "max_tokens_to_sample": 1000,
+            "max_tokens_to_sample": 500,
             "temperature": 0.1,
             "top_p": 0.5,
             "top_k": 250,
@@ -139,7 +139,7 @@ class RagChatbot:
         "client_name": "bedrock-runtime",
         "region_name": "us-east-1",
         "kwargs": {
-            "max_tokens_to_sample": 1000,
+            "max_tokens_to_sample": 500,
             "temperature": 0.1,
             "top_p": 0.5,
             "top_k": 250,
@@ -159,7 +159,7 @@ class RagChatbot:
         "client_name": "bedrock-runtime",
         "region_name": "us-east-1",
         "kwargs": {
-            "max_tokens": 1000,
+            "max_tokens": 500,
             "temperature": 0.1,
             "top_p": 0.5,
             "top_k": 250,
@@ -358,6 +358,15 @@ class RagChatbot:
     def get_llm_model(self):
         return self.__llm_model
 
+    def restate_question_from_history(self, question, conversation_history):
+        summary_prompt = ChatPromptTemplate.from_template(self.__prompt_model.summary_prompt_template)
+        history = ""
+        for qa_pair in conversation_history:
+            history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
+        summary_request = summary_prompt.format(chat_history=history, question=question)
+        restated_question = self.__llm_model.invoke(summary_request)
+        return restated_question
+
     def ask_question(self, question, conversation_history=None, verbose=False):
         my_callback_handler = self.RagCallback(self.__llm_model, verbose=verbose)
         chain_config = RunnableConfig(callbacks=[my_callback_handler])
@@ -367,12 +376,13 @@ class RagChatbot:
         #  and is managed and formulated by the client to this call
         restated_question = None
         if conversation_history is not None:
-            summary_prompt = ChatPromptTemplate.from_template(self.__prompt_model.summary_prompt_template)
-            history = ""
-            for qa_pair in conversation_history:
-                history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
-            summary_request = summary_prompt.format(chat_history=history, question=question)
-            restated_question = self.__llm_model.invoke(summary_request, config=chain_config)
+            restated_question = self.restate_question_from_history(question, conversation_history)
+            # summary_prompt = ChatPromptTemplate.from_template(self.__prompt_model.summary_prompt_template)
+            # history = ""
+            # for qa_pair in conversation_history:
+            #     history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
+            # summary_request = summary_prompt.format(chat_history=history, question=question)
+            # restated_question = self.__llm_model.invoke(summary_request, config=chain_config)
 
         else:
             restated_question = question
