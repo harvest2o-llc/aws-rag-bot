@@ -7,21 +7,21 @@ import os
 
 # Load the environment variables as an option
 load_dotenv(find_dotenv())
-default_domain_name = os.getenv('OPENSEARCH_DOMAIN', default=None)
+default_endpoint = os.getenv('OPENSEARCH_ENDPOINT', default=None)
 
 parser = argparse.ArgumentParser(description='Chatbot CLI Client')
-parser.add_argument('-d', '--domain_name', type=str, help='The domain name for the chatbot', default=default_domain_name)
+parser.add_argument('-e', '--endpoint', type=str, help='The endpoint for the vector DB', default=default_endpoint)
 args = parser.parse_args()
 
-domain_name = args.domain_name
-if not domain_name:
-    print("Please provide an OpenSearch domain name for the chatbot in command line argument or in the .env file.")
+endpoint = args.endpoint
+if not endpoint:
+    print("Please provide an OpenSearch endpoint for the chatbot in command line argument or in the .env file.")
     exit(1)
 else:
-    print(f"Using OpenSearch domain name: {domain_name}")
+    print(f"Using OpenSearch domain name: {endpoint}")
 
-chatbot = RagChatbot(domain_name,
-                     LlmModelTypes.BEDROCK_CLAUDE_21,
+chatbot = RagChatbot(endpoint, service_name='aoss',  # hardedcoded here, so change if using instance to "es"
+                     model_key=LlmModelTypes.BEDROCK_CLAUDE_21,
                      prompt_model=ClaudNasaSpokespersonPrompts)
 chat_history = []
 

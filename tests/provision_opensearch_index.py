@@ -23,10 +23,17 @@ content_sources = [content_source]  # This is an array, because it could be mult
 # Make sure you have an opensearch domain setup at AWS, the domain name is in the .env file and
 # you have the proper credentials in the .aws/credentials file to access it
 load_dotenv(find_dotenv())
-my_open_search_domain_name = os.getenv("OPENSEARCH_DOMAIN")
+#my_open_search_domain_name = os.getenv("OPENSEARCH_DOMAIN")
+my_open_search_endpoint = os.getenv("OPENSEARCH_ENDPOINT")
 my_index_name = 'index-artemis-mission'
 
-vectordb_loader = OpenSearchVectorDBLoader(domain_name=my_open_search_domain_name,
+# vectordb_loader = OpenSearchVectorDBLoader(domain_name=my_open_search_domain_name,
+#                                            index_name=my_index_name,
+#                                            embedding_model=EmbeddingTypes.BEDROCK_DEFAULT,
+#                                            data_sources=content_sources)
+
+vectordb_loader = OpenSearchVectorDBLoader(os_endpoint=my_open_search_endpoint,
+                                           service='aoss',  #  aoss for serverless, es for instance
                                            index_name=my_index_name,
                                            embedding_model=EmbeddingTypes.BEDROCK_DEFAULT,
                                            data_sources=content_sources)

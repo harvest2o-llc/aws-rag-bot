@@ -50,21 +50,21 @@ for q in questions_and_ground_truths:
     ground_truths.append(q["ground_truth"])
 
 load_dotenv(find_dotenv())
-domain_name = os.getenv('OPENSEARCH_DOMAIN')
+endpoint = os.getenv('OPENSEARCH_ENDPOINT')
 llm_model_type = LlmModelTypes.BEDROCK_CLAUDE_21
 prompt_model = ClaudNasaSpokespersonPrompts
 
 
 # Get an LLM model from our chatbot
-chatbot = RagChatbot(domain_name,
-                     llm_model_type,
-                     prompt_model,
-                     EmbeddingTypes.BEDROCK_DEFAULT
+chatbot = RagChatbot(endpoint, service_name='aoss',
+                     model_key=llm_model_type,
+                     prompt_model=prompt_model,
+                     embedding_model=EmbeddingTypes.BEDROCK_DEFAULT
                      )
 llm = chatbot.get_llm_model()
 
 # Get a retriever to use for the process
-vector_db = OpenSearchVectorDBQuery(domain_name=domain_name, index_name=prompt_model.llm_index)
+vector_db = OpenSearchVectorDBQuery(os_endpoint=endpoint, index_name=prompt_model.llm_index)
 vector_db_client = vector_db.get_client()
 retriever = vector_db_client.as_retriever()
 

@@ -1,19 +1,23 @@
 import unittest
 import os
 from dotenv import find_dotenv, load_dotenv
-from aws_rag_bot.aws_opensearch_vector_database import get_opensearch_endpoint, get_embeddings_from_model, EmbeddingTypes
+from aws_rag_bot.aws_opensearch_vector_database import (
+    get_embeddings_from_model,
+    EmbeddingTypes,
+    OpenSearchVectorDBQuery
+)
 from langchain_openai import OpenAIEmbeddings
 from langchain.embeddings.bedrock import BedrockEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import CohereEmbeddings
+from pprint import pprint
 
 load_dotenv(find_dotenv())
-domain_name = os.getenv("OPENSEARCH_DOMAIN")
+
+
+# domain_name = os.getenv("OPENSEARCH_DOMAIN")
 
 class TestOpenSearchVectorDBLoader(unittest.TestCase):
-    def test_get_opensearch_endpoint(self):
-        endpoint = get_opensearch_endpoint(domain_name=domain_name)
-        self.assertIn("amazonaws.com", endpoint)
 
     def test_get_embeddings_from_model_default(self):
         embedding = get_embeddings_from_model()
@@ -39,7 +43,6 @@ class TestOpenSearchVectorDBLoader(unittest.TestCase):
         print(f"embedding_length: {len(embedding_vector)}")
         self.assertGreater(len(embedding_vector), 0)
 
-
     def test_get_embeddings_from_model_openai_custom(self):
         embedding_model = {"name": "openai-text-embed3-large", "provider": "openai", "model": "text-embedding-3-large"}
         embedding = get_embeddings_from_model(embedding_model)
@@ -58,7 +61,8 @@ class TestOpenSearchVectorDBLoader(unittest.TestCase):
         self.assertGreater(len(embedding_vector), 0)
 
     def test_get_embeddings_from_model_huggingface_custom(self):
-        embedding_model = {"name": "hugging-face-bge-large", "provider": "hugging-face", "model": "BAAI/bge-large-en-v1.5"}
+        embedding_model = {"name": "hugging-face-bge-large", "provider": "hugging-face",
+                           "model": "BAAI/bge-large-en-v1.5"}
         embedding = get_embeddings_from_model(embedding_model)
         self.assertTrue(embedding)
         self.assertEqual(type(embedding), HuggingFaceEmbeddings)
@@ -73,6 +77,19 @@ class TestOpenSearchVectorDBLoader(unittest.TestCase):
         embedding_vector = embedding.embed_query("What is the meaning of life?")
         print(f"embedding_length: {len(embedding_vector)}")
         self.assertGreater(len(embedding_vector), 0)
+
+    def test_query(self):
+        load_dotenv(find_dotenv())
+        endpoint = os.getenv("OPENSEARCH_ENDPOINT")
+        vdb = OpenSearchVectorDBQuery(os_endpoint=endpoint, service='aoss', index_name='index-artemis-mission')
+        documents = vdb.query("Where is the Artemis program going")
+        for doc in documents:
+            print("----------------------- metadata -------------------------")
+            pprint(doc.metadata)
+            print("--------------------- page content -----------------------")
+            pprint(doc.page_content)
+
+        self.assertGreater(len(documents), 0)
 
 
 # get_urls_from_sitemap
