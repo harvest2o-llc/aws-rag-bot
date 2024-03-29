@@ -54,22 +54,6 @@ def clean_documents_newlines_spaces_and_tabs(docs):
     return docs
 
 
-def get_opensearch_endpoint(domain_name, region=None):
-    # Get the callable endpoint for the OpenSearch domain
-    # Note that this can be used to make Elastic Search like calls directly
-    client = None
-    if region:
-        client = boto3.client('es', region)
-    else:
-        client = boto3.client('es')
-
-    response = client.describe_elasticsearch_domain(
-        DomainName=domain_name
-    )
-
-    return response['DomainStatus']['Endpoint']
-
-
 def get_embeddings_from_model(embedding_model=None):
     embeddings = None
     if embedding_model is None:
@@ -283,7 +267,7 @@ def get_documents_from_website(content_source, headless=True):
         site_urls = filtered_urls = content_source['items']
 
     print(
-        f"   Found {len(site_urls)} URLs. Filted down to {len(filtered_urls)}. Lets go screen scraping (the slow part)")
+        f"   Found {len(site_urls)} URLs. Filtered down to {len(filtered_urls)}. Lets go screen scraping (the slow part)")
 
     website_documents = clean_documents_newlines_spaces_and_tabs(scrape_website_pages(filtered_urls, headless))
     print(f"   ... and scraped pages resulting in {len(website_documents)} documents")
@@ -297,16 +281,18 @@ def get_documents_from_website(content_source, headless=True):
 
 
 class OpenSearchVectorDBLoader:
-    __domain_name = None
+    __os_endpoint = None
+    __service = None
     __region = None
     __index_name = None
     __embedding = None
     __data_sources = None
 
-    def __init__(self, domain_name, index_name=None, embedding_model=None, data_sources=None, region=None):
-        self.__domain_name = domain_name
+    def __init__(self, os_endpoint, service='aoss', index_name=None, embedding_model=None, data_sources=None, region=None):
         self.__region = region
         self.__index_name = index_name
+        self.__os_endpoint = os_endpoint # This will be the endpoint WITHOUT the https://
+        self.__service = service # aoss for the AWS OpenSearch serverless service, es for the instance based version
 
         if embedding_model:
             self.__embedding_model = embedding_model
@@ -319,8 +305,7 @@ class OpenSearchVectorDBLoader:
         load_dotenv(find_dotenv())
         embeddings = get_embeddings_from_model(self.__embedding_model)
 
-        endpoint = get_opensearch_endpoint(self.__domain_name, self.__region)
-        print(f"   Open search with endpoint={endpoint} and getting ready to load")
+        print(f"   Open search service={self.__service} with endpoint={self.__os_endpoint} and getting ready to load")
         print(f"   Index name = {self.__index_name} and loading {len(documents)} document chunks")
 
         credentials = boto3.Session().get_credentials()
@@ -329,8 +314,7 @@ class OpenSearchVectorDBLoader:
         else:
             region = boto3.Session().region_name
 
-        service = 'es'
-        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service,
+        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, self.__service,
                            session_token=credentials.token)
 
         # Delete the index
@@ -346,11 +330,13 @@ class OpenSearchVectorDBLoader:
             end_index = start_index + batch_size
             document_subset = documents[start_index:end_index]
 
+            print(f"     Loading batch {batch_num + 1} of {total_batches} with {len(document_subset)} documents into {self.__os_endpoint}")
             db = OpenSearchVectorSearch.from_documents(
                 document_subset,
                 embeddings,  # Use the full embeddings list for each batch
-                opensearch_url=f'https://{endpoint}',
+                opensearch_url=f'https://{self.__os_endpoint}',
                 http_auth=awsauth,
+                timeout=300,
                 index_name=self.__index_name,
                 connection_class=RequestsHttpConnection,
                 verify_certs=True,
@@ -381,7 +367,7 @@ class OpenSearchVectorDBLoader:
         content_docs = None
         # delete_index = True  # in first item in loop, we clean, then we retain the index
         print(
-            f"Going to load {len(self.__data_sources)} data sources into {self.__domain_name} domain and {self.__index_name} index")
+            f"Going to load {len(self.__data_sources)} data sources into {self.__os_endpoint} endpoint and {self.__index_name} index")
         for content_source in content_to_load:
             print(f"Processing content for {content_source['name']} ")
             if content_source['type'] == 'Website':
@@ -402,15 +388,13 @@ class OpenSearchVectorDBLoader:
         #  requiring explicit definition of index, and not just class instance version - to avoid accidents
         credentials = boto3.Session().get_credentials()
         region = boto3.Session().region_name  # TODO: Handle this better - with region - leave as override or get from system
-        service = 'es'
-        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service,
-                           session_token=credentials.token)
 
-        endpoint = get_opensearch_endpoint(self.__domain_name, self.__region)
+        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, self.__service,
+                           session_token=credentials.token)
 
         # Delete the index
         print(f"   Deleting index={index_name}")
-        delete_response = requests.request("DELETE", f'https://{endpoint}/{index_name}', auth=awsauth)
+        delete_response = requests.request("DELETE", f'https://{self.__os_endpoint}/{index_name}', auth=awsauth)
         if delete_response.status_code != 200:
             print(
                 f"   Error deleting index={index_name}.  Likely not found and we can ignore. Status code={delete_response.status_code} Reason={delete_response.reason}")
@@ -422,17 +406,19 @@ class OpenSearchVectorDBLoader:
 
 
 class OpenSearchVectorDBQuery:
-    __domain_name = None
+    __os_endpoint = None
+    __service = None
     __region = None
     __index_name = None
     __embedding = None
 
-    def __init__(self, domain_name, index_name, embedding_model=None, region=None):
-        self.__domain_name = domain_name
+    def __init__(self, os_endpoint, index_name, service='aoss', embedding_model=None, region=None):
         self.__region = region
         self.__index_name = index_name
         self.__embedding_model = embedding_model
         self.__client = None
+        self.__os_endpoint = os_endpoint # This will be the endpoint WITHOUT the https://
+        self.__service = service # aoss for the AWS OpenSearch serverless service, es for the instance based version
 
     def get_client(self):
         if self.__client:
@@ -440,18 +426,16 @@ class OpenSearchVectorDBQuery:
 
         load_dotenv(find_dotenv())
         embeddings = get_embeddings_from_model(self.__embedding_model)
-        endpoint = get_opensearch_endpoint(domain_name=self.__domain_name, region=self.__region)
 
         credentials = boto3.Session().get_credentials()
         region = boto3.Session().region_name
-        service = 'es'
-        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service,
+        awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, self.__service,
                            session_token=credentials.token)
 
         self.__client = OpenSearchVectorSearch(
             embedding_function=embeddings,
             index_name=self.__index_name,
-            opensearch_url=f'https://{endpoint}',
+            opensearch_url=f'https://{self.__os_endpoint}',
             http_auth=awsauth,
             use_ssl=True,
             connection_class=RequestsHttpConnection,

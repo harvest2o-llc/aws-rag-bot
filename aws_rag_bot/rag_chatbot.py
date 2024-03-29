@@ -235,7 +235,7 @@ class RagChatbot:
         return self.__llm_model.get_num_tokens(string)
 
     # Constructor
-    def __init__(self, vector_db_domain
+    def __init__(self, vector_db_endpoint, service_name='aoss'
                  , model_key=LlmModelTypes.BEDROCK_TITAN_EXPRESS
                  , prompt_model=None
                  , embedding_model=EmbeddingTypes.BEDROCK_DEFAULT
@@ -260,7 +260,8 @@ class RagChatbot:
 
         # Initialize the LLM model, memory, and chain
         self.__llm_model = self.__get_llm_model()
-        vector_db = OpenSearchVectorDBQuery(domain_name=vector_db_domain,
+        vector_db = OpenSearchVectorDBQuery(os_endpoint=vector_db_endpoint,
+                                            service=service_name,
                                             index_name=index_name,
                                             embedding_model=embedding_model)
         self.__vector_db = vector_db.get_client()
@@ -369,6 +370,7 @@ class RagChatbot:
 
     def ask_question(self, question, conversation_history=None, verbose=False):
         my_callback_handler = self.RagCallback(self.__llm_model, verbose=verbose)
+        # Register my callback handler
         chain_config = RunnableConfig(callbacks=[my_callback_handler])
 
         # --- If we have history, then summarize along with the question to produce a new question ---
@@ -377,12 +379,6 @@ class RagChatbot:
         restated_question = None
         if conversation_history is not None:
             restated_question = self.restate_question_from_history(question, conversation_history)
-            # summary_prompt = ChatPromptTemplate.from_template(self.__prompt_model.summary_prompt_template)
-            # history = ""
-            # for qa_pair in conversation_history:
-            #     history += f"Question - {qa_pair['question']}\nResponse - {qa_pair['response']}\n"
-            # summary_request = summary_prompt.format(chat_history=history, question=question)
-            # restated_question = self.__llm_model.invoke(summary_request, config=chain_config)
 
         else:
             restated_question = question
@@ -390,8 +386,6 @@ class RagChatbot:
         # --- Now we have a restated question, we ask the with the intended prompts ---
         # Get a retriever
         retriever = self.__vector_db.as_retriever()
-
-        # Register my callback handler
 
         template = self.__prompt_model.system_prompt_template
         prompt = ChatPromptTemplate.from_template(template)
@@ -426,11 +420,7 @@ class RagChatbot:
         self.__last_run_duration = duration.total_seconds()
         self.__total_run_duration += duration.total_seconds()
 
-        # if type(response) == AIMessage:
-        #     return response
-        # else:  # This is needed because some LLM's will return a string instead of a AIMessage, like Titan Express
-        #     return AIMessage(content=response)
-
+        # Handle the different types of response objects - reducing it to text for consistency
         if type(answer) == AIMessage:
             return answer.content
         else:

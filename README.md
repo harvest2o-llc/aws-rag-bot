@@ -10,6 +10,7 @@ Content loading also needed to be highly refined allowing me to control each sou
 
 This library is meant more to provide a complete working set of examples and less to be an out-of-the-box library to use as-is.  
 Because this framework imports so many variants of embeddings, LLM models, etc. it is not suitable for a direct deployment into something like AWS Lambda... it is a :pig:.  
+Serious package bloat.   
 
 
 ## Features and aspects of interest
@@ -123,6 +124,4 @@ I also used the directory loader and plan to implement cloud based directory loa
 - https://docs.smith.langchain.com
 
 
-### What's next (Roadmap):
-1. Add vector database stub for FAISS and easy testing
-2. Add OpenSearch serverless support
+
