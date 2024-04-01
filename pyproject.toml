@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aws-rag-bot"
-version = "0.1.14"
+version = "0.1.15"
 description = ""
 authors = ["danjamk <dan@risegardens.com>"]
 license = "MIT"
