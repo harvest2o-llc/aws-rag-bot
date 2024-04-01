@@ -375,7 +375,7 @@ class OpenSearchVectorDBLoader:
             elif content_source['type'] in ['Microsoft Word', 'PDF']:
                 content_docs = get_documents_from_folder(content_source)
             elif content_source['type'] == 'KustomerAPI':
-                content_docs = get_all_shortcuts_as_documents(content_source['location'])
+                content_docs = get_all_shortcuts_as_documents(content_source)
             else:
                 raise (f"   Error loading documents. Cannot handle loading documents of type {content_source['type']}")
 
