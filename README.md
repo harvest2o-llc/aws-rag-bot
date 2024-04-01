@@ -60,7 +60,7 @@ First step is to have content in your vector database.
 ```python
 from open_search_vector_db.aws_opensearch_vector_database import OpenSearchVectorDBLoader
 content_sources = [{"name": "Internal KB Docs", "type": "PDF", "location": "kb-docs"}]
-vectordb_loader = OpenSearchVectorDBLoader(domain_name=my_open_search_domain_name,  
+vectordb_loader = OpenSearchVectorDBLoader(os_endpoint=my_open_search_endpoint,  
                                      index_name=my_index_name,
                                      data_sources=content_sources)
 
@@ -71,8 +71,8 @@ Then you can start asking questions of it
 ```python
 from rag_chatbot import RagChatbot, LlmModelTypes
 from prompt_library import DefaultPrompts
-chatbot = RagChatbot(my_open_search_domain_name,
-                     LlmModelTypes.BEDROCK_TITAN_EXPRESS,
+chatbot = RagChatbot(my_open_search_endpoint,
+                     model_key=LlmModelTypes.BEDROCK_TITAN_EXPRESS,
                      prompt_model=NasaSpokespersonPrompts)
 chat_history = []
 question = "What...?" # Ask a question related to the content you loaded

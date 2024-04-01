@@ -12,6 +12,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.embeddings import CohereEmbeddings
 from pprint import pprint
 
+from aws_rag_bot.kustomer import get_all_shortcuts_as_documents
+
 load_dotenv(find_dotenv())
 
 
@@ -90,6 +92,20 @@ class TestOpenSearchVectorDBLoader(unittest.TestCase):
             pprint(doc.page_content)
 
         self.assertGreater(len(documents), 0)
+
+    def test_kustomer_get_documents(self):
+        content_source = {"name": "Kustomer Shortcuts", "type": "KustomerAPI", "location": "v1/shortcuts", "chunk_size": 1024}
+        documents = get_all_shortcuts_as_documents(content_source)
+        print(f"Found {len(documents)} documents")
+        self.assertGreater(len(documents), 0)
+
+        max_doc_size = 0
+        for doc in documents:
+            if len(doc.page_content) > max_doc_size:
+                max_doc_size = len(doc.page_content)
+
+        print(f"Max document size: {max_doc_size}")
+
 
 
 # get_urls_from_sitemap

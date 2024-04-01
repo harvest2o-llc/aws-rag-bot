@@ -3,12 +3,33 @@ from langchain_core.documents import Document
 import boto3
 import os
 from dotenv import load_dotenv, find_dotenv
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-def get_all_shortcuts_as_documents(kustomer_function):
+def chunk_up_shortcuts(documents, chunk_size):
+    if chunk_size is None:
+        chunk_size = 512
+
+    if chunk_size == 1:
+        return documents
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=round(chunk_size * 0.15),
+        # I chose 15% overlap because that is what I use in woodworking scrap estimate  :-)
+        length_function=len,
+    )
+    docs_chunks = text_splitter.split_documents(documents)
+    print(f"   Chunked {len(documents)} documents into {len(docs_chunks)} chunks using size={chunk_size}")
+
+    return docs_chunks
+
+
+def get_all_shortcuts_as_documents(content_source):
     # Get additional configuration
     load_dotenv(find_dotenv())
     kustomer_api_key = os.getenv('KUSTOMER_API_KEY')
+    kustomer_function = content_source['location']
 
     base_url = "https://api.kustomerapp.com"
     initial_url = f"{base_url}/{kustomer_function}"
@@ -47,4 +68,9 @@ def get_all_shortcuts_as_documents(kustomer_function):
         else:
             raise Exception(f"Failed to fetch shortcuts. Status code: {response.status_code}")
 
-    return documents
+    if 'chunk_size' in content_source and content_source['chunk_size'] == 0:
+        return documents
+    else:
+        doc_chunks = chunk_up_shortcuts(documents,
+                                        content_source['chunk_size'] if 'chunk_size' in content_source else None)
+        return doc_chunks
